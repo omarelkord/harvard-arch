@@ -85,15 +85,18 @@ public class Controller {
             System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
             if (instructionMemory[pc] != null) {
                 fetch();
+                System.out.println("I fetched");
             }
             else {
                 nextFetchedInstruction = null;
             }
             if (prevFetchedInstruction != null) {
                 decode();
+                System.out.println("I decoded");
             }
             if (prevDecodedInstruction != null) {
                 execute();
+                System.out.println("I executed");
             }
             clockCycle++;
             prevFetchedInstruction = nextFetchedInstruction;

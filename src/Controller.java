@@ -27,6 +27,7 @@ public class Controller {
 
     public void execute() {
 //        System.out.println(prevDecodedInstruction.control[4]);
+
         String[] control = prevDecodedInstruction.control;
         String insType = control[3];
         String op = control[4];
@@ -34,14 +35,18 @@ public class Controller {
         byte r2 = Byte.parseByte(control[7]);
         byte imm = Byte.parseByte(control[7]);
 
+        System.out.println(op);
+
         int r1_addr = op.equals("JR") || op.equals("BEQZ") || op.equals("SB")? -1 : Integer.parseInt(control[0], 2);
 
         status = 0;
 
         if (op.equals("LB"))
             registerFile[r1_addr] = dataMemory[imm];
-        else if (op.equals("SB"))
+        else if (op.equals("SB")) {
             dataMemory[imm] = r1;
+            System.out.println(r1);
+        }
         else if (op.equals("LDI")) {
             registerFile[r1_addr] = imm;
         } else if (op.equals("BEQZ") && r1 == 0) {
@@ -62,6 +67,7 @@ public class Controller {
 
 
             System.out.println("RESULT = " + res);
+            System.out.println("RES ADDR = " + r1_addr);
             registerFile[r1_addr] = res;
             status = Byte.parseByte("000" + alu.C + "" + alu.V + "" + alu.N + "" + alu.S + "" + alu.Z, 2);
         }

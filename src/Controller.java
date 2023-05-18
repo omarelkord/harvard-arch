@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Controller {
     String[] instructionMemory;
     byte[] dataMemory;
@@ -13,11 +15,9 @@ public class Controller {
     public Instruction nextDecodedinstruction; // instruction that contains decoded instruction at the current stage and  that is going to be executed at the next stage.
 
 
-
-
     public Controller(byte[] dataMemory, String[] instructionMemory, byte[] registerFile, ALU alu) {
-        this.pc = (short)0;
-        this.status = (byte)0;
+        this.pc = (short) 0;
+        this.status = (byte) 0;
         this.clockCycle = 1;
         this.dataMemory = dataMemory;
         this.instructionMemory = instructionMemory;
@@ -25,47 +25,43 @@ public class Controller {
         this.alu = alu;
     }
 
-//    public void execute2 () {
-//        String[] control = prevDecodedInstruction.control;
-//        int r1_addr = Integer.parseInt(control[0], 2);
-//        String insType = control[3];
-//        String op = control[4];
-//        byte r1 = Byte.parseByte(control[6]);
-//        byte r2 = Byte.parseByte(control[7]);
-//        byte imm = Byte.parseByte(control[7]);
-//        // ...
-//    }
-
     public void execute() {
+//        System.out.println(prevDecodedInstruction.control[4]);
         String[] control = prevDecodedInstruction.control;
-        int r1_addr = Integer.parseInt(control[0], 2);
         String insType = control[3];
         String op = control[4];
         byte r1 = Byte.parseByte(control[6]);
         byte r2 = Byte.parseByte(control[7]);
         byte imm = Byte.parseByte(control[7]);
 
-        status = 0;
+        int r1_addr = op.equals("JR") || op.equals("BEQZ") || op.equals("SB")? -1 : Integer.parseInt(control[0], 2);
 
+        status = 0;
 
         if (op.equals("LB"))
             registerFile[r1_addr] = dataMemory[imm];
         else if (op.equals("SB"))
-            dataMemory[imm] = registerFile[r1_addr];
+            dataMemory[imm] = r1;
         else if (op.equals("LDI")) {
             registerFile[r1_addr] = imm;
         } else if (op.equals("BEQZ") && r1 == 0) {
             pc = (short) (pc + 1 + imm);
-        } else if (op.equals("JR")){
+        } else if (op.equals("JR")) {
             pc = Short.parseShort(convertToBinary(r1, 8) + convertToBinary(r2, 8), 2);
         } else {
             byte res;
 
-            if (insType.equals("0"))
+            if (insType.equals("0")){
                 res = alu.operate(r1, r2, op);
+                System.out.println("R1 = " + r1);
+                System.out.println("R2 = " + r2);
+
+            }
             else
                 res = alu.operate(r1, imm, op);
 
+
+            System.out.println("RESULT = " + res);
             registerFile[r1_addr] = res;
             status = Byte.parseByte("000" + alu.C + "" + alu.V + "" + alu.N + "" + alu.S + "" + alu.Z, 2);
         }
@@ -77,18 +73,16 @@ public class Controller {
         return String.format("%" + size + "s", Integer.toBinaryString(n)).substring(32 - size);
 
     }
+
     public void run() {
         // Is there still something to be done here ?
         do {
             // First: fetch the instruction from the instruction memory.
-            System.out.println("Clock cycle: " + clockCycle);
             System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+            System.out.println("Clock cycle: " + clockCycle);
             if (instructionMemory[pc] != null) {
                 fetch();
                 System.out.println("I fetched");
-            }
-            else {
-                nextFetchedInstruction = null;
             }
             if (prevFetchedInstruction != null) {
                 decode();
@@ -103,10 +97,8 @@ public class Controller {
             prevDecodedInstruction = nextDecodedinstruction;
             nextFetchedInstruction = null;
             nextDecodedinstruction = null;
-        } while (nextFetchedInstruction != null || prevFetchedInstruction != null || prevDecodedInstruction != null);
-
+        } while (prevFetchedInstruction != null || prevDecodedInstruction != null);
     }
-
 
 
     public void fetch() {
@@ -116,7 +108,7 @@ public class Controller {
         pc++; // increment pc to point to the next instruction in the instruction memory.
     }
 
-    public void decode () {
+    public void decode() {
         nextDecodedinstruction = new Instruction(prevFetchedInstruction.instruction);
         String instruction = nextDecodedinstruction.instruction;
         String opCode = instruction.substring(0, 4); // opcode from bit 0 to 3.
@@ -133,8 +125,18 @@ public class Controller {
         Parser p = new Parser();
         p.parse("src/prog.txt");
         p.displayInstructionMemory();
+        System.out.println();
+        System.out.println();
         Controller c = new Controller(new byte[2048], p.instructionMemory, new byte[64], new ALU());
         c.run();
+        System.out.println();
+        System.out.println();
+        System.out.println("Data Memory");
+        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+        for (int i = 0; i < c.dataMemory.length; i++) {
+            System.out.println(i + ": " + c.dataMemory[i]);
+        }
+        System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
     }
 
 }

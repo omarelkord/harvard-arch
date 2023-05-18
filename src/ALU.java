@@ -26,6 +26,7 @@ public class ALU {
         }
         Z = (result == 0)? 1: 0;
         N = (result < 0)? 1:0;
+
         if(operation.equals("ADD") || operation.equals("SUB"))
             this.updateSignFlag();
 

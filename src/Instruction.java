@@ -73,11 +73,11 @@ public class Instruction {
                 control[5] = "0"; // MemWrite
                 control[6] = valR1 + "";
                 control[7] = valR2 + ""; // ALUSrc (pass r2)
-                control[8] = "1"; // RegWrite
+                control[8] = "0"; // RegWrite
                 break;
             // I-type
             case "0011":
-                control[0] = "1"; // RegDst
+                control[0] = r1; // RegDst
                 control[1] = "0"; // Branch
                 control[2] = "0"; // MemRead
                 control[3] = "1"; // MemtoReg (I-type)

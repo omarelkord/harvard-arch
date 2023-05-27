@@ -1,5 +1,4 @@
 package com.example.whatever;
-
 public class Controller {
     String[] instructionMemory;
     byte[] dataMemory;
@@ -65,7 +64,7 @@ public class Controller {
             // flush fetched and decoded isntructions
             nextFetchedInstruction = null;
             nextDecodedinstruction = null;
-        } else {
+        } else if (op.equals("ADD") || op.equals("SUB") || op.equals("MUL") || op.equals("AND") || op.equals("OR") || op.equals("SLC") || op.equals("SRC")) {
             byte res;
             if (insType.equals("0")){
                 res = alu.operate(r1, r2, op);
@@ -87,7 +86,7 @@ public class Controller {
             if (nextDecodedinstruction.r1.equals(r)) {
                 nextDecodedinstruction.control[6] = valR + "";
             }
-            if (nextDecodedinstruction.r2.equals(r)) {
+            if (nextDecodedinstruction.control[3].equals("0")  && nextDecodedinstruction.r2.equals(r)) {
                 nextDecodedinstruction.control[7] = valR + "";
             }
         }

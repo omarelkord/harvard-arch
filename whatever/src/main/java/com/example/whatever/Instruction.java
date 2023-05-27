@@ -1,5 +1,4 @@
 package com.example.whatever;
-
 public class Instruction {
     String instruction;
     int id;
